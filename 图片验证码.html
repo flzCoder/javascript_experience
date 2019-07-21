@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=gb2312" />
+    <meta name="keywords" content="免费锦标赛">
+    <meta name="description" content="比赛" />
+    <title>验证码</title>
+    <script type="text/javascript" src="http://css.cache.jj.cn/js/jjmatch/gbk/core/network.js"></script>
+
+<style type="text/css">
+    body{padding: 40px;}
+    li{list-style: none;}
+    .verify_email {width: 100%;margin: 17px 0 0 0;line-height: 35px;}
+    .verify_email b {float: left;width: 90px;text-align: right;font-size: 14px;font-weight: normal;display: inline;margin-right: 10px;color: #333333;}
+    .verify_email input {background: url(http://img1.cache.jj.cn/images/reg/inp1.gif) repeat-x;height: 33px;width: 60px;;line-height: 33px;border: 1px solid #b0beca;padding: 0 3px;border-radius: 3px;margin-right: 3px;}
+    .verify_email i {color: #f00;width: 25px;text-align: center;font-style: normal;}
+    #img_wrap{margin:10px 0 0 40px;}
+</style>
+
+</head>
+
+<body>
+    <ul>
+        <li class="verify_email" id="verify_email">
+            <b>验证码</b>
+            <label>
+                <input type="text" id="verify_code" name="verify_code" value="" /><i>*</i>
+                <input type="hidden" id="vid" name="vid" value="" />
+                <input type="hidden" id="viq" name="viq" value="" />
+                <input type="hidden" id="str" name="str" value="" />
+            </label>
+        </li>
+        <li id="img_wrap"></li>
+    </ul>
+
+<script type="text/javascript">
+    (function(){
+        var verify_email = document.getElementById("verify_email"),
+            tips = verify_email.getElementsByTagName("i")[0],
+            verify_code = document.getElementById("verify_code"),
+            img_wrap = document.getElementById("img_wrap"),
+            verify_img = document.getElementById("verify_img"),
+            str = document.getElementById("str"),
+            vid = document.getElementById("vid"),
+            viq = document.getElementById("viq");
+
+        function get_code(v_data) {
+            var img = v_data.img,
+                vid = v_data.vid,
+                viq = v_data.viq;
+            img.src = "http://img1.cache.jj.cn/images/newIndex/201008/loadingN.gif";
+            jjmatch.network.get("http://verify.jj.cn/verify/v.php?t=" + Math.random() + "&s=10&z=l&y=10", function (data) {
+                img.src = "http://verify.jj.cn/verify/i.php?id=" + data.vid;
+                img.name = data.vas;
+                vid.value = data.vid;
+                viq.value = data.viq;
+            }, 'jsonp');
+        }
+
+        /*显示验证码*/
+        verify_code.onfocus = function(){
+            tips.innerHTML = "*";
+            if(!verify_img){
+                img_wrap.innerHTML = '<img id="verify_img" src="http://img1.cache.jj.cn/images/newIndex/201008/loadingN.gif" title="看不清点击我换一张" />';
+                verify_img = document.getElementById("verify_img");
+                get_code({
+                    img : verify_img,
+                    vid : vid,
+                    viq : viq
+                });
+                verify_img.onclick = function(){
+                    get_code({
+                        img : verify_img,
+                        vid : vid,
+                        viq : viq
+                    });
+                };
+            }
+        };
+
+        /*验证输入码*/
+        verify_code.onblur = function() {
+            var input_code = (verify_code.value).trim(),
+                img_num = verify_img.name;
+            console.log(input_code);
+            if(input_code !== ""){
+                jjmatch.network.get("http://verify.jj.cn/verify/c.php?vtr="+img_num+"&t="+Math.random()+"&str="+input_code , function(data){
+                    if(data.msg == 1) {
+                        str.value = input_code;
+                        tips.innerHTML = "OK";
+                    } else {
+                        tips.innerHTML = "验证码不正确，请重新填写";
+                    }
+                } , "jsonp");
+            }
+        }
+
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body{padding: 180px 0 0 180px;}
+        form input{border: 1px solid #000; width: 181px; height: 27px;padding-left:8px; outline: none; border-radius: 3px;}
+        form span{color: red; font-size: 12px;}
+        label{display: block;margin-bottom: 12px;}
+        label em{display:inline-block;width: 81px; text-align: right;font-style: normal;}
+    </style>
+</head>
+<body>
+    <h1>表格</h1>
+    <form>
+        <label id="password">
+            <em>密码</em>
+            <input type="password" name="password" />
+            <span></span>
+        </label>
+        <label id="re_password">
+            <em>确认密码</em>
+            <input type="password" name="re_password" />
+            <span></span>
+        </label>
+    </form>
+
+<script type="text/javascript">
+
+    (function(){
+
+        var label_list = document.getElementsByTagName("label"),
+            password = document.getElementById("password"),
+            input = password.getElementsByTagName("input")[0],
+            span = password.getElementsByTagName("span")[0],
+            re_password = document.getElementById("re_password"),
+            re_input = re_password.getElementsByTagName("input")[0],
+            re_span = re_password.getElementsByTagName("span")[0],
+            password_exp,
+            len = label_list.length,
+            i,
+            label_input,
+            label_span;
+
+        input.onblur = function(){
+            var value = input.value,
+                trim_value = value.trim(),
+                arr_value = trim_value.split(""),
+                len = arr_value.length;
+
+            if(len<8 || len>18){
+                password_exp = false;
+                span.innerHTML = "密码由8-18位字符，区分大小写";
+            }else{
+
+                /*最少包含字母 数字 特殊三种类型*/
+                /*var  password_exp = /^(?![^a-zA-Z]+$)(?!\D+$)(?![0-9a-zA-Z]+$)/.test(value);*/
+
+                /*字母 数字 特殊字符三种最少包含选两种*/
+                password_exp = /^(?![a-zA-Z]+$)(?!\d+$)(?![^0-9a-zA-Z]+$)/.test(trim_value);
+                if(password_exp){
+                    span.innerHTML = "OK";
+                }else{
+                    span.innerHTML = "密码最少由数字、字母、特殊符号中的两种组成";
+                }
+            }
+        };
+
+        re_input.onblur =function(){
+            var password_value = input.value.trim(),
+                re_password_value = re_input.value.trim();
+            if(password_value!== re_password_value){
+                re_span.innerHTML = "两次填写的密码不一致";
+            }else if(re_password_value !== ""){
+                re_span.innerHTML = "OK";
+            }
+        };
+
+        for(i=0 ; i<len; i++){
+            (function(j){
+                label_input = label_list[j].getElementsByTagName("input")[0];
+                label_input.onfocus = function(){
+                    label_span = label_list[j].getElementsByTagName("span")[0];
+                    label_span.innerHTML = "";
+                }
+            })(i);
+        }
+
+    })();
+</script>
+</body>
+</html>
+
+

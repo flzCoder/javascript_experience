@@ -1,0 +1,131 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body{padding: 180px 0 0 180px;}
+        #card input{border: 1px solid #000; width: 181px; height: 27px;padding-left:8px; outline: none; border-radius: 3px;}
+        #card span{color: red; font-size: 12px;}
+    </style>
+</head>
+<body>
+<h1>表格</h1>
+<form id="card">
+    <label>
+        身份证
+        <input type="text" name="email" />
+        <span></span>
+    </label>
+</form>
+
+<script type="text/javascript">
+
+    /*主要验证地区代码、出生日期、校验位*/
+
+    (function(){
+
+        var card = document.getElementById("card"),
+            input = card.getElementsByTagName("input")[0],
+            span = card.getElementsByTagName("span")[0];
+
+        var province={11:"北京",12:"天津",13:"河北",14:"山西",15:"内蒙古",21:"辽宁",22:"吉林",23:"黑龙江 ",31:"上海",32:"江苏",33:"浙江",34:"安徽",35:"福建",36:"江西",37:"山东",41:"河南",42:"湖北 ",43:"湖南",44:"广东",45:"广西",46:"海南",50:"重庆",51:"四川",52:"贵州",53:"云南",54:"西藏 ",61:"陕西",62:"甘肃",63:"青海",64:"宁夏",65:"新疆",71:"台湾",81:"香港",82:"澳门",91:"国外 "};
+
+        function validate_date(date) {
+            if (date instanceof Date) {
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                month = month < 10 ? '0' + month: month;
+                var day = date.getDate();
+                day = day < 10 ? '0' + day: day;
+                return ''+ year + month + day;
+            }
+            return '';
+        }
+
+        input.onblur = function(){
+            var value = (input.value).trim();
+            var card_list = value.split(""),
+                sum = 0,
+                position,
+                valide_test = true,
+                date_test = true,
+                init_num;
+
+            var regExp_test = /^\d{6}(18|19|20)?\d{2}(0[1-9]|1[12])(0[1-9]|[12]\d|3[01])\d{3}(\d|X)?$/i.test(value),
+                province_code = value.substr(0,2);
+
+            if(card_list.length == 15){
+                var year = "19" + value.substr(6,2),
+                        month = value.substr(8,2),
+                        day = value.substr(10,2);
+            }else{
+                year = value.substr(6,4);
+                month = value.substr(10,2);
+                day = value.substr(12,2);
+            }
+            var date = year + month + day,
+                    init_date = new Date(year + '/' + month + '/' + day),
+                    validated_date =  validate_date(init_date);
+
+            if(date !== validated_date){
+                date_test = false;
+            }
+
+                /*校验位
+                var position = ∑(ai×Wi)(mod 11)；
+                i----表示号码字符从右至左包括校验码在内的位置序号；
+                    从右边向左边算位置的序号。最左边的位置最大最右边的位置序号最小；
+                ai----表示第i位置上的号码字符值；
+                Wi----示第i位置上的加权因子，其数值依据公式Wi=2^(n-1）(mod 11)计算得出。
+                i 18 17 16 15 14 13 12 11 10 9 8 7 6 5 4 3 2 1
+                Wi 7 9 10 5 8 4 2 1 6 3 7 9 10 5 8 4 2 1
+                ValideCode = [ 1, 0, 10, 9, 8, 7, 6, 5, 4, 3, 2]
+                ValideCode[position] 与身份证第18位比较*/
+
+            if(card_list.length == 18){
+                var Wi = [ 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2, 1],
+                    ValideCode = [ 1, 0, 10, 9, 8, 7, 6, 5, 4, 3, 2];
+
+                for( var i = 0; i < 17; i++){
+                    sum += Wi[i] * card_list[i];// 加权求和
+                }
+                position = sum % 11;
+                if(card_list[17] == "x" || card_list[17] == "X"){
+                    card_list[17] = 10;
+                }
+
+                init_num = parseInt(card_list[17]);
+
+                if(ValideCode[position] !== init_num) {
+                    valide_test = false;
+                }
+            }
+
+            if(value === ""){
+                span.innerHTML = "不能为空";
+                return false;
+            }else if(!regExp_test){
+                span.innerHTML = "身份证号格式不对";
+                return false;
+            }else if(!province[province_code]){
+                span.innerHTML = "行政区号书写有误";
+                return false;
+            }else if(!date_test){
+                span.innerHTML = "出生年月日填写错误";
+                return false;
+            }else if(!valide_test){
+                span.innerHTML = "校验位出错";
+                return false;
+            }else{
+                span.innerHTML = "OK";
+            }
+        };
+
+    })();
+
+</script>
+</body>
+</html>
+
+

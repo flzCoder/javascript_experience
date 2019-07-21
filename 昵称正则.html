@@ -1,0 +1,78 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body{padding: 180px 0 0 180px;}
+        #card input{border: 1px solid #000; width: 181px; height: 27px;padding-left:8px; outline: none; border-radius: 3px;}
+        #card span{color: red; font-size: 12px;}
+    </style>
+</head>
+<body>
+<h1>表格</h1>
+<form id="card">
+    <label>
+        昵称
+        <input type="text" name="nickname" />
+        <span></span>
+    </label>
+</form>
+
+<script type="text/javascript">
+
+    (function(){
+        var card = document.getElementById("card"),
+            input = card.getElementsByTagName("input")[0],
+            span = card.getElementsByTagName("span")[0];
+
+        input.onblur = function(){
+
+            var value = (input.value).trim(),
+                nick_test = true,
+                length;
+
+            nick_test = /[\u4E00-\u9FA50-9a-zA-Z_]/.test(value);
+
+            /*获取带汉字的字符串的长度 : charCodeAt方法*/
+            function cc_len(str){
+                var len=0,
+                    str_len = str.length,
+                    i,
+                    charcode;
+                for(i = 0; i<str_len; i++){
+                    charcode = str.charCodeAt(i);
+                    if(charcode>=0 && charcode<=128){
+                        len++;
+                    }else{
+                        len+=2;
+                    }
+                }
+                return len;
+            }
+            length = cc_len(value);
+
+            /*获取带汉字的字符串的长度 : replace方法*/
+            /*length = value.replace(/[\u4E00-\u9FA5]/g,"aa").length;*/
+
+            if(!nick_test){
+                span.innerHTML = "字符类型不对";
+            }else if(length<4 || length>19){
+                span.innerHTML = "位数不对";
+            }else{
+                span.innerHTML = "OK";
+            }
+
+        };
+
+        input.onfocus = function(){
+            span.innerHTML = "";
+        }
+
+    })();
+
+</script>
+</body>
+</html>
+
+
